@@ -52,10 +52,10 @@ func main() {
 	}
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
+		Addr:     cfg.RedisAddr,
+		Password: cfg.RedisPassword,
 		DB:       0,
-		PoolSize: 1000,
+		PoolSize: 512,
 	})
 
 	userRepo    := repository.NewUser(dbPool)

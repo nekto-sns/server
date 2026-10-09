@@ -15,6 +15,8 @@ type Config struct{
 	IsProd           bool   `env:"IS_PROD" envDefault:false`
 	ScratchAuthURL   string `env:"SCRATCH_AUTH_URL,required,notEmpty"`
 	BaseURL          string `env:"BASE_URL"`
+	RedisAddr        string `env:"REDIS_ADDR"`
+	RedisPassword    string `env:"REDIS_PASSWORD"`
 	LoginCallbackURL string
 }
 
