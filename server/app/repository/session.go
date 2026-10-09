@@ -41,3 +41,27 @@ func (r *sessionRepository) UserID(ctx context.Context, sessionID string) (strin
 
 	return userID, nil
 }
+
+func (r *sessionRepository) Update(ctx context.Context, oldSessionID, newSessionID string) error {
+	err := r.rdb.Rename(ctx, oldSessionID, newSessionID).Err()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return fmt.Errorf("Key not found: %w", model.ErrNotFound)
+		}
+		return fmt.Errorf("Redis operation failed (%v): %w", err, model.ErrInternal)
+	}
+
+	return nil
+}
+
+func (r *sessionRepository) RemainingTTL(ctx context.Context, sessionID string) (time.Duration, error) {
+	ttl, err := r.rdb.TTL(ctx, sessionID).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return 0, fmt.Errorf("Key not found: %w", model.ErrNotFound)
+		}
+		return 0, fmt.Errorf("Redis operation failed (%v): %w", err, model.ErrInternal)
+	}
+
+	return ttl, nil
+}

@@ -10,6 +10,7 @@ import (
 
 type userRepository interface{
 	ByName(context.Context, string) (*model.User, error)
+	ByID(context.Context, string) (*model.User, error)
 }
 
 type userService struct{
@@ -24,6 +25,19 @@ func NewUser(repo userRepository) (*userService) {
 
 func (u *userService) ByName(ctx context.Context, name string) (*model.User, error) {
 	user, err := u.repo.ByName(ctx, name)
+	if err != nil {
+		if errors.Is(err, model.ErrNotFound) {
+			return nil, fmt.Errorf("User not found: %w", err)
+		}
+
+		return nil, fmt.Errorf("Failed to get user: %w", err)
+	}
+
+	return user, nil
+}
+
+func (u *userService) ByID(ctx context.Context, id string) (*model.User, error) {
+	user, err := u.repo.ByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, fmt.Errorf("User not found: %w", err)

@@ -12,18 +12,29 @@ import (
 
 type userService interface{
 	ByName(context.Context, string) (*model.User, error)
+	ByID(context.Context, string) (*model.User, error)
 }
 
 type userHandler struct{
 	svc userService
 }
 
-type userResponse struct{
+type userJSON struct{
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
 	DisplayName string    `json:"display_name"`
 	Bio         string    `json:"bio"`
 	CreatedAt   time.Time `json:"created_at"`
+}
+
+func userResponse(u *model.User) *userJSON {
+	return &userJSON{
+		ID:          u.ID,
+		Name:        u.Name,
+		DisplayName: u.DisplayName,
+		Bio:         u.Bio,
+		CreatedAt:   u.CreatedAt,
+	}
 }
 
 func NewUser(svc userService) (*userHandler) {
@@ -45,11 +56,5 @@ func (h *userHandler) ByName(c *echo.Context) error {
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get user").Wrap(err)
 	}
-	return c.JSON(http.StatusOK, &userResponse{
-		ID: user.ID,
-		Name: user.Name,
-		DisplayName: user.DisplayName,
-		Bio: user.Bio,
-		CreatedAt: user.CreatedAt,
-	})
+	return c.JSON(http.StatusOK, userResponse(user))
 }

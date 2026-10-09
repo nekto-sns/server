@@ -35,3 +35,18 @@ func (r *userRepository) ByName(ctx context.Context, name string) (*model.User, 
 
 	return &u, nil
 }
+
+func (r *userRepository) ByID(ctx context.Context, id string) (*model.User, error) {
+	var u model.User
+
+	query := "SELECT id, name, display_name, bio, created_at FROM users WHERE id = $1"
+	err := r.db.QueryRow(ctx, query, id).Scan(&u.ID, &u.Name, &u.DisplayName, &u.Bio, &u.CreatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("Row not found: %w", model.ErrNotFound)
+		}
+		return nil, fmt.Errorf("DB query failed (%v): %w", err, model.ErrInternal)
+	}
+
+	return &u, nil
+}

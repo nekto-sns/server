@@ -16,9 +16,9 @@ import (
 	"github.com/nekto-sns/nekto/server/app/repository"
 	"github.com/nekto-sns/nekto/server/app/service"
 
-
-	"github.com/nekto-sns/nekto/server/app/manager/sessionmanager"
 	"github.com/nekto-sns/nekto/server/app/client/scratchauth"
+
+	"github.com/nekto-sns/nekto/server/app/sessionmanager"
 
 	"github.com/nekto-sns/nekto/server/app/shared/config"
 	"github.com/nekto-sns/nekto/server/app/shared/database"
@@ -63,12 +63,13 @@ func main() {
 	userHandler := handler.NewUser(userSvc)
 
 	sessionRepo := repository.NewSession(rdb)
-	sessionMN   := sessionmanager.New(sessionRepo, 24 * 7 * time.Hour)
+
+	sessionMN   := sessionmanager.New(24 * 7 * time.Hour)
 
 	saClient    := scratchauth.New(&http.Client{}, cfg.ScratchAuthURL, []string{cfg.LoginCallbackURL})
 	authRepo    := repository.NewScratchAuth(dbPool)
-	authSvc     := service.NewScratchAuth(authRepo, saClient, sessionMN)
-	authHandler := handler.NewScratchAuth(authSvc, cfg.ScratchAuthURL, cfg.LoginCallbackURL)
+	authSvc     := service.NewScratchAuth(sessionRepo, authRepo, saClient, sessionMN)
+	authHandler := handler.NewScratchAuth(authSvc, sessionMN, cfg.ScratchAuthURL, cfg.LoginCallbackURL)
 
 	e := echo.New()
 	e.HTTPErrorHandler = errorhandler.ErrorHandler

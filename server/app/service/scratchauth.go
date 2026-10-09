@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 	"errors"
 	"context"
 
@@ -12,53 +13,61 @@ type scratchAuthRepository interface{
 	UserIDByScratchName(context.Context, string) (string, error)
 }
 
+type sessionRepository interface{
+	Save(context.Context, string, string, time.Duration) error
+}
+
 type scratchAuthClient interface{
 	Verify(context.Context, string) (string, error)
 }
 
 type sessionManager interface{
-	Create(context.Context, string) (string, error)
-	MaxAge() int
+	Generate() (string, error)
+	TTL() (time.Duration)
 }
 
 type scratchAuthService struct{
-	repo      scratchAuthRepository
-	saClient  scratchAuthClient
-	sessionMN sessionManager
+	saRepo      scratchAuthRepository
+	sessionRepo sessionRepository
+	saClient    scratchAuthClient
+	sessionMN   sessionManager
 }
 
-func NewScratchAuth(saRepo scratchAuthRepository, saClient scratchAuthClient, sessionMN sessionManager) (*scratchAuthService) {
+func NewScratchAuth(sessionRepo sessionRepository, saRepo scratchAuthRepository, saClient scratchAuthClient, sessionMN sessionManager) *scratchAuthService {
 	return &scratchAuthService{
-		repo: saRepo,
-		sessionMN: sessionMN,
-		saClient: saClient,
+		saRepo:      saRepo,
+		sessionRepo: sessionRepo,
+		saClient:    saClient,
+		sessionMN:   sessionMN,
 	}
 }
 
-func (s *scratchAuthService) LoginCallback(ctx context.Context, privateCode string) (*model.Session, error) {
+func (s *scratchAuthService) LoginCallback(ctx context.Context, privateCode string) (string, error) {
 	scratchName, err := s.saClient.Verify(ctx, privateCode)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, fmt.Errorf("Scratch account not found: %w", err)
+			return "", fmt.Errorf("Scratch account not found: %w", err)
 		}
-		return nil, fmt.Errorf("Authentication failed: %w", err)
+		return "", fmt.Errorf("Authentication failed: %w", err)
 	}
 
-	userID, err := s.repo.UserIDByScratchName(ctx, scratchName)
+	userID, err := s.saRepo.UserIDByScratchName(ctx, scratchName)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, fmt.Errorf("User not found: %w", err)
+			return "", fmt.Errorf("User not found: %w", err)
 		}
-		return nil, fmt.Errorf("Failed to get user: %w", err)
+		return "", fmt.Errorf("Failed to get user: %w", err)
 	}
 
-	sessionID, err := s.sessionMN.Create(ctx, userID)
+	sessionID, err := s.sessionMN.Generate()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create session: %w", err)
+		return "", fmt.Errorf("Failed to generate session ID(%v): %w", err, model.ErrInternal)
 	}
 
-	return &model.Session{
-		ID: sessionID,
-		MaxAge: s.sessionMN.MaxAge(),
-	}, nil
+	err = s.sessionRepo.Save(ctx, sessionID, userID, s.sessionMN.TTL())
+	if err != nil {
+		return "", fmt.Errorf("Failed to save session ID: %w", err)
+	}
+
+	return sessionID, nil
 }

@@ -13,21 +13,27 @@ import (
 )
 
 type scratchAuthService interface{
-	LoginCallback(context.Context, string) (*model.Session, error)
+	LoginCallback(context.Context, string) (string, error)
+}
+
+type sessionManager interface{
+	Cookie(string) *http.Cookie
 }
 
 type scratchAuthHandler struct{
 	svc scratchAuthService
+	sessionMN sessionManager
 	loginRedirectURL string
 }
 
-func NewScratchAuth(svc scratchAuthService, scratchAuthURL, loginCallbackURL string) (*scratchAuthHandler) {
+func NewScratchAuth(svc scratchAuthService, sessionMN sessionManager, scratchAuthURL, loginCallbackURL string) (*scratchAuthHandler) {
 	base64URL := base64.URLEncoding.EncodeToString([]byte(loginCallbackURL))
 	redirect, _ := url.JoinPath(scratchAuthURL, "/auth")
 
 	return &scratchAuthHandler{
 		svc: svc,
 		loginRedirectURL: redirect + "?redirect=" + base64URL,
+		sessionMN: sessionMN,
 	}
 }
 
@@ -52,14 +58,7 @@ func (h *scratchAuthHandler) LoginCallback(c *echo.Context) error {
 		}
 	}
 
-	c.SetCookie(&http.Cookie{
-		Name: "session",
-		Value: session.ID,
-		MaxAge: session.MaxAge,
-		SameSite: http.SameSiteLaxMode,
-		Secure: false,
-		HttpOnly: true,
-	})
+	c.SetCookie(h.sessionMN.Cookie(session))
 
 	return c.JSON(http.StatusOK, map[string]string{"success": "true"})
 }
