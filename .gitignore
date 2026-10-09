@@ -1,3 +1,2 @@
-server/bin/
-server/.env
-client/node_modules
+bin/
+.env

@@ -11,18 +11,18 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/nekto-sns/nekto/server/app/route"
-	"github.com/nekto-sns/nekto/server/app/handler"
-	"github.com/nekto-sns/nekto/server/app/repository"
-	"github.com/nekto-sns/nekto/server/app/service"
+	"github.com/nekto-sns/nekto/app/route"
+	"github.com/nekto-sns/nekto/app/handler"
+	"github.com/nekto-sns/nekto/app/repository"
+	"github.com/nekto-sns/nekto/app/service"
 
-	"github.com/nekto-sns/nekto/server/app/client/scratchauth"
+	"github.com/nekto-sns/nekto/app/client/scratchauth"
 
-	"github.com/nekto-sns/nekto/server/app/sessionmanager"
+	"github.com/nekto-sns/nekto/app/sessionmanager"
 
-	"github.com/nekto-sns/nekto/server/app/shared/config"
-	"github.com/nekto-sns/nekto/server/app/shared/database"
-	"github.com/nekto-sns/nekto/server/app/shared/errorhandler"
+	"github.com/nekto-sns/nekto/app/shared/config"
+	"github.com/nekto-sns/nekto/app/shared/database"
+	"github.com/nekto-sns/nekto/app/shared/errorhandler"
 )
 
 func main() {

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"context"
 
-	"github.com/nekto-sns/nekto/server/app/model"
+	"github.com/nekto-sns/nekto/app/model"
 )
 
 type scratchAuthRepository interface{
