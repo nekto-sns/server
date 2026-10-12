@@ -33,6 +33,7 @@ func (m *sessionManager) Cookie(id string) *http.Cookie {
 	return &http.Cookie{
 		Name: "session",
 		Value: id,
+		Path: "/",
 		MaxAge: m.maxAge,
 		SameSite: http.SameSiteLaxMode,
 		Secure: m.isProd,

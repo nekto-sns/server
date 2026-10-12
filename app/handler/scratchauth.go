@@ -51,11 +51,10 @@ func (h *scratchAuthHandler) LoginCallback(c *echo.Context) error {
 
 	session, err := h.svc.LoginCallback(req, privateCode)
 	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "User not found").Wrap(err)
-		} else if errors.Is(err, model.ErrForbidden) {
-			return echo.NewHTTPError(http.StatusForbidden, "Unauthorized").Wrap(err)
+		if errors.Is(err, model.ErrInternal) {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Login failed").Wrap(err)
 		}
+		return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized").Wrap(err)
 	}
 
 	c.SetCookie(h.sessionMN.Cookie(session))

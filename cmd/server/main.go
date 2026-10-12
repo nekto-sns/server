@@ -1,8 +1,10 @@
 package main
 
 import (
+	_ "net/http/pprof"
 	"os"
 	"log/slog"
+	"log"
 	"net/http"
 	"time"
 	"context"
@@ -13,6 +15,7 @@ import (
 
 	"github.com/nekto-sns/nekto/app/route"
 	"github.com/nekto-sns/nekto/app/handler"
+	"github.com/nekto-sns/nekto/app/middleware"
 	"github.com/nekto-sns/nekto/app/repository"
 	"github.com/nekto-sns/nekto/app/service"
 
@@ -63,19 +66,23 @@ func main() {
 	userHandler := handler.NewUser(userSvc)
 
 	sessionRepo := repository.NewSession(rdb)
-
 	sessionMN   := sessionmanager.New(24 * 7 * time.Hour)
+	sessionSvc  := service.NewSession(sessionRepo, sessionMN)
 
 	saClient    := scratchauth.New(&http.Client{}, cfg.ScratchAuthURL, []string{cfg.LoginCallbackURL})
 	authRepo    := repository.NewScratchAuth(dbPool)
 	authSvc     := service.NewScratchAuth(sessionRepo, authRepo, saClient, sessionMN)
 	authHandler := handler.NewScratchAuth(authSvc, sessionMN, cfg.ScratchAuthURL, cfg.LoginCallbackURL)
+	authMW      := middleware.NewAuth(sessionMN, sessionSvc)
 
 	e := echo.New()
 	e.HTTPErrorHandler = errorhandler.ErrorHandler
 
-	route.Setup(e, userHandler, authHandler)
+	route.Setup(e, userHandler, authHandler, authMW)
 
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 
 	e.Start(cfg.Port)
 }

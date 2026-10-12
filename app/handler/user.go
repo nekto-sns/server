@@ -58,3 +58,18 @@ func (h *userHandler) ByName(c *echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, userResponse(user))
 }
+
+func (h *userHandler) Me(c *echo.Context) error {
+	userID := c.Get("user").(string)
+
+	ctx := c.Request().Context()
+
+	user, err := h.svc.ByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, model.ErrNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "User not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get user").Wrap(err)
+	}
+	return c.JSON(http.StatusOK, userResponse(user))
+}

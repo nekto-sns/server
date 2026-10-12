@@ -15,6 +15,8 @@ type scratchAuthRepository interface{
 
 type sessionRepository interface{
 	Save(context.Context, string, string, time.Duration) error
+	ByID(ctx context.Context, sessionID string) (string, time.Duration, error)
+	Update(context.Context, string, time.Duration) error
 }
 
 type scratchAuthClient interface{
