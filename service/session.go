@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/nekto-sns/nekto/app/model"
+	"github.com/nekto-sns/server/model"
 )
 
 type sessionService struct{

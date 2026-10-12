@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"github.com/labstack/echo/v5"
 
-	"github.com/nekto-sns/nekto/app/model"
+	"github.com/nekto-sns/server/model"
 )
 
 type userService interface{

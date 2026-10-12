@@ -1,4 +1,4 @@
-module github.com/nekto-sns/nekto
+module github.com/nekto-sns/server
 
 go 1.26.5
 

@@ -8,7 +8,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/nekto-sns/nekto/app/model"
+	"github.com/nekto-sns/server/model"
 )
 
 type sessionRepository struct{

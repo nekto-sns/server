@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"log/slog"
-	"log"
 	"net/http"
 	"time"
 	"context"
@@ -12,19 +11,19 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/nekto-sns/nekto/app/route"
-	"github.com/nekto-sns/nekto/app/handler"
-	"github.com/nekto-sns/nekto/app/middleware"
-	"github.com/nekto-sns/nekto/app/repository"
-	"github.com/nekto-sns/nekto/app/service"
+	"github.com/nekto-sns/server/route"
+	"github.com/nekto-sns/server/handler"
+	"github.com/nekto-sns/server/middleware"
+	"github.com/nekto-sns/server/repository"
+	"github.com/nekto-sns/server/service"
 
-	"github.com/nekto-sns/nekto/app/client/scratchauth"
+	"github.com/nekto-sns/server/client/scratchauth"
 
-	"github.com/nekto-sns/nekto/app/sessionmanager"
+	"github.com/nekto-sns/server/sessionmanager"
 
-	"github.com/nekto-sns/nekto/app/shared/config"
-	"github.com/nekto-sns/nekto/app/shared/database"
-	"github.com/nekto-sns/nekto/app/shared/errorhandler"
+	"github.com/nekto-sns/server/shared/config"
+	"github.com/nekto-sns/server/shared/database"
+	"github.com/nekto-sns/server/shared/errorhandler"
 )
 
 func main() {

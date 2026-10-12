@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/nekto-sns/nekto/app/model"
+	"github.com/nekto-sns/server/model"
 )
 
 type userRepository struct{

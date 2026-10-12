@@ -5,7 +5,7 @@ import (
 	"errors"
 	"context"
 
-	"github.com/nekto-sns/nekto/app/model"
+	"github.com/nekto-sns/server/model"
 )
 
 type userRepository interface{
