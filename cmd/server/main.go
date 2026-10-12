@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "net/http/pprof"
 	"os"
 	"log/slog"
 	"log"
@@ -79,10 +78,6 @@ func main() {
 	e.HTTPErrorHandler = errorhandler.ErrorHandler
 
 	route.Setup(e, userHandler, authHandler, authMW)
-
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
 
 	e.Start(cfg.Port)
 }

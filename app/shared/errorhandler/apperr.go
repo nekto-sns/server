@@ -15,7 +15,7 @@ type errorResponse struct{
 func ErrorHandler(c *echo.Context, err error) {
 	var appErr *echo.HTTPError
 	if errors.As(err, &appErr) {
-		if internalErr := errors.Unwrap(err); internalErr != nil && appErr.Code != http.StatusNotFound && appErr.Code != http.StatusBadRequest {
+		if internalErr := errors.Unwrap(err); internalErr != nil && appErr.Code < 400 || appErr.Code >= 500 {
 
 			slog.Error("Request processing failed", "err", internalErr)
 		}
