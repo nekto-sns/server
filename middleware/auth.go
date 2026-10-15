@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"github.com/nekto-sns/server/model"
+	"github.com/nekto-sns/server/domain"
 )
 
 type sessionManager interface{
@@ -31,7 +31,7 @@ func NewAuth(m sessionManager, s sessionService) echo.MiddlewareFunc {
 			userID, isUpdated, err := s.Update(ctx, cookie.Value)
 
 			if err != nil {
-				if errors.Is(err, model.ErrNotFound) {
+				if errors.Is(err, domain.ErrNotFound) {
 					return echo.NewHTTPError(http.StatusUnauthorized, "Invalid session")
 				}
 				return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error")

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"github.com/labstack/echo/v5"
 
+	"github.com/nekto-sns/server/domain"
 	"github.com/nekto-sns/server/model"
 )
 
@@ -51,10 +52,10 @@ func (h *userHandler) ByName(c *echo.Context) error {
 
 	user, err := h.svc.ByName(ctx, name)
 	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "User not found")
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get user").Wrap(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error").Wrap(err)
 	}
 	return c.JSON(http.StatusOK, userResponse(user))
 }
@@ -66,10 +67,10 @@ func (h *userHandler) Me(c *echo.Context) error {
 
 	user, err := h.svc.ByID(ctx, userID)
 	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "User not found")
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get user").Wrap(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error").Wrap(err)
 	}
 	return c.JSON(http.StatusOK, userResponse(user))
 }

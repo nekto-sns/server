@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/nekto-sns/server/model"
+	"github.com/nekto-sns/server/domain"
 )
 
 type scratchAuthRepository struct{
@@ -28,9 +28,9 @@ func (r *scratchAuthRepository) UserIDByScratchName(ctx context.Context, scratch
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return "", fmt.Errorf("Row not found: %w", model.ErrNotFound)
+			return "", fmt.Errorf("Row not found: %w", domain.ErrNotFound)
 		}
-		return "", fmt.Errorf("DB query failed (%v): %w", err, model.ErrInternal)
+		return "", fmt.Errorf("DB query failed (%v): %w", err, domain.ErrInternal)
 	}
 
 	return userID, nil

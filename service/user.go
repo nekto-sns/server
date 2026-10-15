@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"errors"
 	"context"
 
 	"github.com/nekto-sns/server/model"
@@ -26,11 +25,7 @@ func NewUser(repo userRepository) (*userService) {
 func (u *userService) ByName(ctx context.Context, name string) (*model.User, error) {
 	user, err := u.repo.ByName(ctx, name)
 	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
-			return nil, fmt.Errorf("User not found: %w", err)
-		}
-
-		return nil, fmt.Errorf("Failed to get user: %w", err)
+		return nil, fmt.Errorf("getting user %s: %w", name, err)
 	}
 
 	return user, nil
@@ -39,11 +34,7 @@ func (u *userService) ByName(ctx context.Context, name string) (*model.User, err
 func (u *userService) ByID(ctx context.Context, id string) (*model.User, error) {
 	user, err := u.repo.ByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
-			return nil, fmt.Errorf("User not found: %w", err)
-		}
-
-		return nil, fmt.Errorf("Failed to get user: %w", err)
+		return nil, fmt.Errorf("getting user %s: %w", id, err)
 	}
 
 	return user, nil

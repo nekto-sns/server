@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/nekto-sns/server/model"
+	"github.com/nekto-sns/server/domain"
 )
 
 type userRepository struct{
@@ -28,9 +29,9 @@ func (r *userRepository) ByName(ctx context.Context, name string) (*model.User, 
 	err := r.db.QueryRow(ctx, query, name).Scan(&u.ID, &u.Name, &u.DisplayName, &u.Bio, &u.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("Row not found: %w", model.ErrNotFound)
+			return nil, fmt.Errorf("Row not found: %w", domain.ErrNotFound)
 		}
-		return nil, fmt.Errorf("DB query failed (%v): %w", err, model.ErrInternal)
+		return nil, fmt.Errorf("DB query failed (%v): %w", err, domain.ErrInternal)
 	}
 
 	return &u, nil
@@ -43,9 +44,9 @@ func (r *userRepository) ByID(ctx context.Context, id string) (*model.User, erro
 	err := r.db.QueryRow(ctx, query, id).Scan(&u.ID, &u.Name, &u.DisplayName, &u.Bio, &u.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("Row not found: %w", model.ErrNotFound)
+			return nil, fmt.Errorf("Row not found: %w", domain.ErrNotFound)
 		}
-		return nil, fmt.Errorf("DB query failed (%v): %w", err, model.ErrInternal)
+		return nil, fmt.Errorf("DB query failed (%v): %w", err, domain.ErrInternal)
 	}
 
 	return &u, nil

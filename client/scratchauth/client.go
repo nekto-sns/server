@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"encoding/json"
 
-	"github.com/nekto-sns/server/model"
+	"github.com/nekto-sns/server/domain"
 )
 
 type client struct{
@@ -42,32 +42,32 @@ func (c *client) isAllowedRedirectURL(url string) bool {
 func (c *client) Verify(ctx context.Context, privateCode string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", c.scratchAuthURL + "/api/auth/verifyToken?privateCode=" + privateCode, nil)
 	if err != nil {
-		return "", fmt.Errorf("Failed to create HTTP request (%v): %w", err, model.ErrInternal)
+		return "", fmt.Errorf("Failed to create HTTP request (%v): %w", err, domain.ErrInternal)
 	}
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("Failed to send HTTP request (%v): %w", err, model.ErrInternal)
+		return "", fmt.Errorf("Failed to send HTTP request (%v): %w", err, domain.ErrInternal)
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return "", fmt.Errorf("Failed to read response body (%v): %w", err, model.ErrInternal)
+		return "", fmt.Errorf("Failed to read response body (%v): %w", err, domain.ErrInternal)
 	}
 
 	var auth scratchAuth
 	err = json.Unmarshal(body, &auth)
 	if err != nil {
-		return "", fmt.Errorf("Failed to unmarshal JSON into a struct (%v): %w", err, model.ErrInternal)
+		return "", fmt.Errorf("Failed to unmarshal JSON into a struct (%v): %w", err, domain.ErrInternal)
 	}
 
 	if auth.Valid == false {
-		return "", fmt.Errorf("Invalid authentication: %w", model.ErrUnauthorized)
+		return "", fmt.Errorf("Invalid authentication: %w", domain.ErrUnauthorized)
 	}
 
 	if !c.isAllowedRedirectURL(auth.Redirect) {
-		return "", fmt.Errorf("Invalid redirect URL (%s): %w", auth.Redirect, model.ErrBadRequest)
+		return "", fmt.Errorf("Invalid redirect URL (%s): %w", auth.Redirect, domain.ErrBadRequest)
 	}
 
 	return auth.Username, nil

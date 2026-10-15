@@ -9,7 +9,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 
-	"github.com/nekto-sns/server/model"
+	"github.com/nekto-sns/server/domain"
 )
 
 type scratchAuthService interface{
@@ -51,7 +51,7 @@ func (h *scratchAuthHandler) LoginCallback(c *echo.Context) error {
 
 	session, err := h.svc.LoginCallback(req, privateCode)
 	if err != nil {
-		if errors.Is(err, model.ErrInternal) {
+		if errors.Is(err, domain.ErrInternal) {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Login failed").Wrap(err)
 		}
 		return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized").Wrap(err)

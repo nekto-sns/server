@@ -23,7 +23,7 @@ import (
 
 	"github.com/nekto-sns/server/shared/config"
 	"github.com/nekto-sns/server/shared/database"
-	"github.com/nekto-sns/server/shared/errorhandler"
+	"github.com/nekto-sns/server/errorhandler"
 )
 
 func main() {

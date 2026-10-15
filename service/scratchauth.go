@@ -3,10 +3,9 @@ package service
 import (
 	"fmt"
 	"time"
-	"errors"
 	"context"
 
-	"github.com/nekto-sns/server/model"
+	"github.com/nekto-sns/server/domain"
 )
 
 type scratchAuthRepository interface{
@@ -47,28 +46,22 @@ func NewScratchAuth(sessionRepo sessionRepository, saRepo scratchAuthRepository,
 func (s *scratchAuthService) LoginCallback(ctx context.Context, privateCode string) (string, error) {
 	scratchName, err := s.saClient.Verify(ctx, privateCode)
 	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
-			return "", fmt.Errorf("Scratch account not found: %w", err)
-		}
-		return "", fmt.Errorf("Authentication failed: %w", err)
+		return "", fmt.Errorf("verifying scratch user: %w", err)
 	}
 
 	userID, err := s.saRepo.UserIDByScratchName(ctx, scratchName)
 	if err != nil {
-		if errors.Is(err, model.ErrNotFound) {
-			return "", fmt.Errorf("User not found: %w", err)
-		}
-		return "", fmt.Errorf("Failed to get user: %w", err)
+		return "", fmt.Errorf("verifying scratch user: %w", err)
 	}
 
 	sessionID, err := s.sessionMN.Generate()
 	if err != nil {
-		return "", fmt.Errorf("Failed to generate session ID(%v): %w", err, model.ErrInternal)
+		return "", fmt.Errorf("generating session id: %w: %w", err, domain.ErrInternal)
 	}
 
 	err = s.sessionRepo.Save(ctx, sessionID, userID, s.sessionMN.TTL())
 	if err != nil {
-		return "", fmt.Errorf("Failed to save session ID: %w", err)
+		return "", fmt.Errorf("saving session: %w", err)
 	}
 
 	return sessionID, nil
