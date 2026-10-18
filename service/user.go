@@ -10,6 +10,8 @@ import (
 type userRepository interface{
 	ByName(context.Context, string) (*model.User, error)
 	ByID(context.Context, string) (*model.User, error)
+	Create(context.Context, string) (*model.User, error)
+	IDByScratchName(context.Context, string) (string, error)
 }
 
 type userService struct{

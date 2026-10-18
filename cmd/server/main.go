@@ -68,8 +68,7 @@ func main() {
 	sessionSvc  := service.NewSession(sessionRepo, sessionMN)
 
 	saClient    := scratchauth.New(&http.Client{}, cfg.ScratchAuthURL, []string{cfg.LoginCallbackURL})
-	authRepo    := repository.NewScratchAuth(dbPool)
-	authSvc     := service.NewScratchAuth(sessionRepo, authRepo, saClient, sessionMN)
+	authSvc     := service.NewScratchAuth(sessionRepo, userRepo, saClient, sessionMN)
 	authHandler := handler.NewScratchAuth(authSvc, sessionMN, cfg.ScratchAuthURL, cfg.LoginCallbackURL)
 	authMW      := middleware.NewAuth(sessionMN, sessionSvc)
 

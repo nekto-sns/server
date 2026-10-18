@@ -6,7 +6,7 @@ import (
 
 type User struct{
 	ID          string    `db:"id"`
-	Name        string    `db:"name"`
+	ScratchName string    `db:"scratch_name"`
 	DisplayName string    `db:"display_name"`
 	Bio         string    `db:"bio"`
 	CreatedAt   time.Time `db:"created_at"`

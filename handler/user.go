@@ -22,7 +22,7 @@ type userHandler struct{
 
 type userJSON struct{
 	ID          string    `json:"id"`
-	Name        string    `json:"name"`
+	ScratchName string    `json:"scratch_name"`
 	DisplayName string    `json:"display_name"`
 	Bio         string    `json:"bio"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -31,7 +31,7 @@ type userJSON struct{
 func userResponse(u *model.User) *userJSON {
 	return &userJSON{
 		ID:          u.ID,
-		Name:        u.Name,
+		ScratchName: u.ScratchName,
 		DisplayName: u.DisplayName,
 		Bio:         u.Bio,
 		CreatedAt:   u.CreatedAt,

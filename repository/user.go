@@ -25,8 +25,8 @@ func NewUser(pool *pgxpool.Pool) (*userRepository) {
 func (r *userRepository) ByName(ctx context.Context, name string) (*model.User, error) {
 	var u model.User
 
-	query := "SELECT id, name, display_name, bio, created_at FROM users WHERE name = $1"
-	err := r.db.QueryRow(ctx, query, name).Scan(&u.ID, &u.Name, &u.DisplayName, &u.Bio, &u.CreatedAt)
+	query := "SELECT id, scratch_name, display_name, bio, created_at FROM users WHERE scratch_name = $1"
+	err := r.db.QueryRow(ctx, query, name).Scan(&u.ID, &u.ScratchName, &u.DisplayName, &u.Bio, &u.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("Row not found: %w", domain.ErrNotFound)
@@ -40,8 +40,8 @@ func (r *userRepository) ByName(ctx context.Context, name string) (*model.User, 
 func (r *userRepository) ByID(ctx context.Context, id string) (*model.User, error) {
 	var u model.User
 
-	query := "SELECT id, name, display_name, bio, created_at FROM users WHERE id = $1"
-	err := r.db.QueryRow(ctx, query, id).Scan(&u.ID, &u.Name, &u.DisplayName, &u.Bio, &u.CreatedAt)
+	query := "SELECT id, scratch_name, display_name, bio, created_at FROM users WHERE id = $1"
+	err := r.db.QueryRow(ctx, query, id).Scan(&u.ID, &u.ScratchName, &u.DisplayName, &u.Bio, &u.CreatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("Row not found: %w", domain.ErrNotFound)
@@ -50,4 +50,37 @@ func (r *userRepository) ByID(ctx context.Context, id string) (*model.User, erro
 	}
 
 	return &u, nil
+}
+
+func (r *userRepository) Create(ctx context.Context, scratchName string) (*model.User, error) {
+	var u model.User
+
+	query := `
+		INSERT INTO users (scratch_name)
+		VALUES ($1)
+		RETURNING id, scratch_name, display_name, bio, created_at`
+
+	err := r.db.QueryRow(ctx, query, scratchName).Scan(
+		&u.ID, &u.ScratchName, &u.DisplayName, &u.Bio, &u.CreatedAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("DB insert failed (%v): %w", err, domain.ErrInternal)
+	}
+
+	return &u, nil
+}
+
+func (r *userRepository) IDByScratchName(ctx context.Context, scratchName string) (string, error) {
+	var userID string
+
+	err := r.db.QueryRow(ctx,`SELECT id FROM users WHERE scratch_name = $1`, scratchName).Scan(&userID)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", fmt.Errorf("Row not found: %w", domain.ErrNotFound)
+		}
+		return "", fmt.Errorf("DB query failed (%v): %w", err, domain.ErrInternal)
+	}
+
+	return userID, nil
 }

@@ -28,16 +28,16 @@ type sessionManager interface{
 }
 
 type scratchAuthService struct{
-	saRepo      scratchAuthRepository
 	sessionRepo sessionRepository
+	userRepo    userRepository
 	saClient    scratchAuthClient
 	sessionMN   sessionManager
 }
 
-func NewScratchAuth(sessionRepo sessionRepository, saRepo scratchAuthRepository, saClient scratchAuthClient, sessionMN sessionManager) *scratchAuthService {
+func NewScratchAuth(sessionRepo sessionRepository, userRepo userRepository, saClient scratchAuthClient, sessionMN sessionManager) *scratchAuthService {
 	return &scratchAuthService{
-		saRepo:      saRepo,
 		sessionRepo: sessionRepo,
+		userRepo:    userRepo,
 		saClient:    saClient,
 		sessionMN:   sessionMN,
 	}
@@ -49,7 +49,7 @@ func (s *scratchAuthService) LoginCallback(ctx context.Context, privateCode stri
 		return "", fmt.Errorf("verifying scratch user: %w", err)
 	}
 
-	userID, err := s.saRepo.UserIDByScratchName(ctx, scratchName)
+	userID, err := s.userRepo.IDByScratchName(ctx, scratchName)
 	if err != nil {
 		return "", fmt.Errorf("verifying scratch user: %w", err)
 	}
