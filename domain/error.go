@@ -11,4 +11,5 @@ const (
 	ErrInternal     Error = "Internal server errror"
 	ErrBadRequest   Error = "Bad request"
 	ErrUnauthorized Error = "Unauthorized"
+	ErrConflict     Error = "Conflict"
 )

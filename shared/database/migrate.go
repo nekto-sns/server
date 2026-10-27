@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"log/slog"
 	"embed"
 	"fmt"
 	"sort"
@@ -47,7 +48,7 @@ func RunMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 		}
 
 		if !exists {
-			fmt.Printf("[Migration] Applying: %s\n", filename)
+			slog.Info("Migrating: %s\n", filename)
 
 			content, err := migrationFS.ReadFile("migrations/" + filename)
 			if err != nil {
@@ -71,7 +72,7 @@ func RunMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 			if err := tx.Commit(ctx); err != nil {
 				return fmt.Errorf("failed to commit transaction for %s: %w", filename, err)
 			}
-			fmt.Printf("[Migration] Success: %s\n", filename)
+			slog.Info("Migration success: %s\n", filename)
 		}
 	}
 

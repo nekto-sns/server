@@ -67,9 +67,9 @@ func main() {
 	sessionMN   := sessionmanager.New(24 * 7 * time.Hour)
 	sessionSvc  := service.NewSession(sessionRepo, sessionMN)
 
-	saClient    := scratchauth.New(&http.Client{}, cfg.ScratchAuthURL, []string{cfg.LoginCallbackURL})
+	saClient    := scratchauth.New(&http.Client{}, cfg.ScratchAuthURL, []string{cfg.LoginCallbackURL, cfg.RegisterCallbackURL})
 	authSvc     := service.NewScratchAuth(sessionRepo, userRepo, saClient, sessionMN)
-	authHandler := handler.NewScratchAuth(authSvc, sessionMN, cfg.ScratchAuthURL, cfg.LoginCallbackURL)
+	authHandler := handler.NewScratchAuth(authSvc, sessionMN, cfg.ScratchAuthURL, cfg.LoginCallbackURL, cfg.RegisterCallbackURL)
 	authMW      := middleware.NewAuth(sessionMN, sessionSvc)
 
 	e := echo.New()

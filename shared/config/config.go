@@ -17,7 +17,9 @@ type Config struct{
 	BaseURL          string `env:"BASE_URL"`
 	RedisAddr        string `env:"REDIS_ADDR"`
 	RedisPassword    string `env:"REDIS_PASSWORD"`
-	LoginCallbackURL string
+
+	LoginCallbackURL    string
+	RegisterCallbackURL string
 }
 
 func Load() (*Config) {
@@ -44,6 +46,7 @@ func Load() (*Config) {
 	}
 
 	cfg.LoginCallbackURL = cfg.BaseURL + "/auth/scratch/login/callback"
+	cfg.RegisterCallbackURL = cfg.BaseURL + "/auth/scratch/register/callback"
 
 	return &cfg
 }

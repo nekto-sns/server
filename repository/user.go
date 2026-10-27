@@ -7,6 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgerrcode"
 
 	"github.com/nekto-sns/server/model"
 	"github.com/nekto-sns/server/domain"
@@ -63,7 +65,12 @@ func (r *userRepository) Create(ctx context.Context, scratchName string) (*model
 	err := r.db.QueryRow(ctx, query, scratchName).Scan(
 		&u.ID, &u.ScratchName, &u.DisplayName, &u.Bio, &u.CreatedAt,
 	)
+
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
+			return nil, fmt.Errorf("DB insert failed (%v): %w", err, domain.ErrConflict)
+		}
 		return nil, fmt.Errorf("DB insert failed (%v): %w", err, domain.ErrInternal)
 	}
 

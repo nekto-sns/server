@@ -7,10 +7,16 @@ import (
 type scratchAuthHandler interface{
 	LoginRedirect(*echo.Context) error
 	LoginCallback(*echo.Context) error
+
+	RegisterRedirect(*echo.Context) error
+	RegisterCallback(*echo.Context) error
 }
 
 func saRoute(e *echo.Echo, sh scratchAuthHandler) {
 	s := e.Group("/auth/scratch")
 	s.GET("/login", sh.LoginRedirect)
 	s.GET("/login/callback", sh.LoginCallback)
+
+	s.GET("/register", sh.RegisterRedirect)
+	s.GET("/register/callback", sh.RegisterCallback)
 }

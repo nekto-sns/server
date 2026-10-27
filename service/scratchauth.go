@@ -66,3 +66,27 @@ func (s *scratchAuthService) LoginCallback(ctx context.Context, privateCode stri
 
 	return sessionID, nil
 }
+
+func (s *scratchAuthService) RegisterCallback(ctx context.Context, privateCode string) (string, error) {
+	scratchName, err := s.saClient.Verify(ctx, privateCode)
+	if err != nil {
+		return "", fmt.Errorf("verifying scratch user: %w", err)
+	}
+
+	user, err := s.userRepo.Create(ctx, scratchName)
+	if err != nil {
+		return "", fmt.Errorf("creating user: %w", err)
+	}
+
+	sessionID, err := s.sessionMN.Generate()
+	if err != nil {
+		return "", fmt.Errorf("generating session id: %w", err)
+	}
+
+	err = s.sessionRepo.Save(ctx, sessionID, user.ID, s.sessionMN.TTL())
+	if err != nil {
+		return "", fmt.Errorf("saving session: %w", err)
+	}
+
+	return sessionID, nil
+}
